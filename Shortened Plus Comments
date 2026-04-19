@@ -1,14 +1,8 @@
-# ============================================================
-# Monthly Budget Tracker - GUI Version
-# Lucy + Jake + Student 3
-# ============================================================
 
 import tkinter as tk
 from tkinter import messagebox
 
-# ============================================================
-# LUCY'S PART - Logic Layer
-# ============================================================
+# Logic Layer
 
 class Expense:
     # Represents a single expense with a name, amount, and category
@@ -38,23 +32,20 @@ class BudgetManager:
             report += f"{exp.name} ({exp.category}): ${exp.amount:.2f}\n"
         return report
 
-# ============================================================
-# GUI CLASS - All three students' methods combined
-# ============================================================
 
 class BudgetApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Budget Tracker")  # Sets the window title
 
-        self.manager = BudgetManager()  # Connects to Lucy's logic layer
+        self.manager = BudgetManager()  # Connects to logic layer
 
-        self.build_interface()  # Jake builds the visual layout
-        self.bind_events()      # Student 3 sets up button/key events
-        self.refresh_view()     # Student 4 updates the display on startup
+        self.build_interface()  #  visual layout
+        self.bind_events()      #  sets up button/key events
+        self.refresh_view()     #  updates the display on startup
 
     # --------------------------------------------------------
-    # JAKE'S PART - Layout and Entry Widgets
+    #  Layout and Entry Widgets
     # --------------------------------------------------------
 
     def build_interface(self):
@@ -88,7 +79,7 @@ class BudgetApp:
         input_frame.columnconfigure(1, weight=1)  # Makes entry column stretch with window
 
     def build_action_section(self):
-        # Creates the Add Expense button and links it to Student 3's callback
+        # Creates the Add Expense button and links it to logic and integrator callback
         action_frame = tk.Frame(self.main_frame, pady=12)
         action_frame.pack(fill="x")
         self.add_button = tk.Button(action_frame, text="Add Expense",
@@ -109,7 +100,7 @@ class BudgetApp:
         self.total_label.pack(anchor="e")  # Aligns total to the right
 
     # --------------------------------------------------------
-    # STUDENT 3'S PART - Logic Integrator & Event Handler
+    #  Logic Integrator & Event Handler
     # --------------------------------------------------------
 
     def bind_events(self):
@@ -121,7 +112,7 @@ class BudgetApp:
         self.handle_add_expense()
 
     def handle_add_expense(self):
-        # STEP 1: Read what the user typed into Jake's Entry widgets
+        # STEP 1: Read what the user typed into Entry widgets
         name, amount_text, category = self.get_form_data()
 
         # STEP 2: Check the input is valid before doing anything
@@ -137,12 +128,12 @@ class BudgetApp:
             messagebox.showerror("Error", "Amount must be a number.")
             return
 
-        # STEP 4: Clear the form and let Student 4 update the display
+        # STEP 4: Clear the form and let update the display
         self.clear_form()
         self.refresh_view()
 
     def get_form_data(self):
-        # Reads the current text from Jake's three Entry widgets
+        # Reads the current text from three Entry widgets
         # .strip() removes any accidental spaces the user may have typed
         name        = self.name_entry.get().strip()
         amount_text = self.amount_entry.get().strip()
@@ -157,7 +148,7 @@ class BudgetApp:
         return ""
 
     def clear_form(self):
-        # Wipes Jake's Entry fields clean after a successful add
+        # Wipes Entry fields clean after a successful add
         # Then moves the cursor back to the name field for the next entry
         self.name_entry.delete(0, tk.END)
         self.amount_entry.delete(0, tk.END)
@@ -165,7 +156,7 @@ class BudgetApp:
         self.name_entry.focus_set()
 
     # --------------------------------------------------------
-    # STUDENT 4'S PART - Output Display
+    #   Output Display
     # --------------------------------------------------------
 
     def refresh_view(self):
