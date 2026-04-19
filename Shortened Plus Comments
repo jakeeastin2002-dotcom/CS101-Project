@@ -1,0 +1,192 @@
+# ============================================================
+# Monthly Budget Tracker - GUI Version
+# Lucy + Jake + Student 3
+# ============================================================
+
+import tkinter as tk
+from tkinter import messagebox
+
+# ============================================================
+# LUCY'S PART - Logic Layer
+# ============================================================
+
+class Expense:
+    # Represents a single expense with a name, amount, and category
+    def __init__(self, name, amount, category):
+        self.name = name
+        self.amount = float(amount)  # Converts amount to a decimal number
+        self.category = category
+
+class BudgetManager:
+    # Manages the full list of expenses and calculates totals
+    def __init__(self):
+        self.expenses = []  # Empty list to store all expenses
+
+    def add_expense(self, name, amount, category):
+        # Creates a new Expense object and adds it to the list
+        new_expense = Expense(name, amount, category)
+        self.expenses.append(new_expense)
+
+    def get_total(self):
+        # Adds up all expense amounts and returns the total
+        return sum(exp.amount for exp in self.expenses)
+
+    def get_all_expenses(self):
+        # Builds and returns a formatted string of all expenses
+        report = ""
+        for exp in self.expenses:
+            report += f"{exp.name} ({exp.category}): ${exp.amount:.2f}\n"
+        return report
+
+# ============================================================
+# GUI CLASS - All three students' methods combined
+# ============================================================
+
+class BudgetApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Budget Tracker")  # Sets the window title
+
+        self.manager = BudgetManager()  # Connects to Lucy's logic layer
+
+        self.build_interface()  # Jake builds the visual layout
+        self.bind_events()      # Student 3 sets up button/key events
+        self.refresh_view()     # Student 4 updates the display on startup
+
+    # --------------------------------------------------------
+    # JAKE'S PART - Layout and Entry Widgets
+    # --------------------------------------------------------
+
+    def build_interface(self):
+        # Creates the main frame and builds all three sections
+        self.main_frame = tk.Frame(self.root, padx=12, pady=12)
+        self.main_frame.pack(fill="both", expand=True)
+        self.build_input_section()
+        self.build_action_section()
+        self.build_display_section()
+
+    def build_input_section(self):
+        # Creates the input frame with three labeled entry fields
+        input_frame = tk.LabelFrame(self.main_frame, text="Expense Entry", padx=10, pady=10)
+        input_frame.pack(fill="x")
+
+        # Expense Name label and entry box
+        tk.Label(input_frame, text="Expense Name:").grid(row=0, column=0, sticky="w", pady=(0, 8))
+        self.name_entry = tk.Entry(input_frame, width=30)
+        self.name_entry.grid(row=0, column=1, sticky="ew", pady=(0, 8))
+
+        # Amount label and entry box
+        tk.Label(input_frame, text="Amount:").grid(row=1, column=0, sticky="w", pady=(0, 8))
+        self.amount_entry = tk.Entry(input_frame, width=30)
+        self.amount_entry.grid(row=1, column=1, sticky="ew", pady=(0, 8))
+
+        # Category label and entry box
+        tk.Label(input_frame, text="Category:").grid(row=2, column=0, sticky="w")
+        self.category_entry = tk.Entry(input_frame, width=30)
+        self.category_entry.grid(row=2, column=1, sticky="ew")
+
+        input_frame.columnconfigure(1, weight=1)  # Makes entry column stretch with window
+
+    def build_action_section(self):
+        # Creates the Add Expense button and links it to Student 3's callback
+        action_frame = tk.Frame(self.main_frame, pady=12)
+        action_frame.pack(fill="x")
+        self.add_button = tk.Button(action_frame, text="Add Expense",
+                                    command=self.handle_add_expense,
+                                    bg="blue", fg="white", width=14)
+        self.add_button.pack(anchor="w")
+
+    def build_display_section(self):
+        # Creates the output area with a text box and total label
+        display_frame = tk.LabelFrame(self.main_frame, text="Budget Summary", padx=10, pady=10)
+        display_frame.pack(fill="both", expand=True)
+
+        tk.Label(display_frame, text="Expenses:").pack(anchor="w")
+        self.text_display = tk.Text(display_frame, height=10, width=45)  # Text box to show expenses
+        self.text_display.pack(fill="both", expand=True, pady=(6, 10))
+
+        self.total_label = tk.Label(display_frame, text="Total: $0.00", font=("Arial", 12, "bold"))
+        self.total_label.pack(anchor="e")  # Aligns total to the right
+
+    # --------------------------------------------------------
+    # STUDENT 3'S PART - Logic Integrator & Event Handler
+    # --------------------------------------------------------
+
+    def bind_events(self):
+        # Makes the Enter key work the same as clicking "Add Expense"
+        self.root.bind("<Return>", self.handle_add_expense_event)
+
+    def handle_add_expense_event(self, event):
+        # Wrapper needed because keyboard events pass an extra argument
+        self.handle_add_expense()
+
+    def handle_add_expense(self):
+        # STEP 1: Read what the user typed into Jake's Entry widgets
+        name, amount_text, category = self.get_form_data()
+
+        # STEP 2: Check the input is valid before doing anything
+        validation_error = self.validate_entry(name, amount_text)
+        if validation_error:
+            messagebox.showwarning("Input Error", validation_error)
+            return  # Stop here if there is a problem
+
+        # STEP 3: Pass the data into Lucy's BudgetManager
+        try:
+            self.manager.add_expense(name, amount_text, category)
+        except ValueError:
+            messagebox.showerror("Error", "Amount must be a number.")
+            return
+
+        # STEP 4: Clear the form and let Student 4 update the display
+        self.clear_form()
+        self.refresh_view()
+
+    def get_form_data(self):
+        # Reads the current text from Jake's three Entry widgets
+        # .strip() removes any accidental spaces the user may have typed
+        name        = self.name_entry.get().strip()
+        amount_text = self.amount_entry.get().strip()
+        category    = self.category_entry.get().strip()
+        return name, amount_text, category
+
+    def validate_entry(self, name, amount_text):
+        # Returns an error message if required fields are empty
+        # Returns "" (empty string) if everything is fine
+        if not name or not amount_text:
+            return "Please enter both a name and an amount."
+        return ""
+
+    def clear_form(self):
+        # Wipes Jake's Entry fields clean after a successful add
+        # Then moves the cursor back to the name field for the next entry
+        self.name_entry.delete(0, tk.END)
+        self.amount_entry.delete(0, tk.END)
+        self.category_entry.delete(0, tk.END)
+        self.name_entry.focus_set()
+
+    # --------------------------------------------------------
+    # STUDENT 4'S PART - Output Display
+    # --------------------------------------------------------
+
+    def refresh_view(self):
+        # Clears the text box and refills it with the latest expense data
+        self.text_display.delete("1.0", tk.END)
+
+        expense_report = self.manager.get_all_expenses()  # Gets updated list from Lucy's manager
+        if expense_report:
+            self.text_display.insert(tk.END, expense_report)
+        else:
+            self.text_display.insert(tk.END, "No expenses added yet.")
+
+        # Updates the total label with the latest calculated total
+        self.total_label.config(text=f"Total: ${self.manager.get_total():.2f}")
+
+
+# ============================================================
+# ENTRY POINT - Starts the app
+# ============================================================
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = BudgetApp(root)
+    root.mainloop()
