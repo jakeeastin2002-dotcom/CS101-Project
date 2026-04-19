@@ -1,8 +1,13 @@
+# ============================================================
+# Monthly Budget Tracker - GUI Version
+# ============================================================
 
 import tkinter as tk
 from tkinter import messagebox
 
-# Logic Layer
+# ============================================================
+# Logic Layer - Expense and BudgetManager classes
+# ============================================================
 
 class Expense:
     # Represents a single expense with a name, amount, and category
@@ -32,20 +37,23 @@ class BudgetManager:
             report += f"{exp.name} ({exp.category}): ${exp.amount:.2f}\n"
         return report
 
+# ============================================================
+# GUI Class - Connects the logic layer to the visual interface
+# ============================================================
 
 class BudgetApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Budget Tracker")  # Sets the window title
 
-        self.manager = BudgetManager()  # Connects to logic layer
+        self.manager = BudgetManager()  # Connects to the logic layer
 
-        self.build_interface()  #  visual layout
-        self.bind_events()      #  sets up button/key events
-        self.refresh_view()     #  updates the display on startup
+        self.build_interface()  # Builds the visual layout
+        self.bind_events()      # Sets up button and key events
+        self.refresh_view()     # Updates the display on startup
 
     # --------------------------------------------------------
-    #  Layout and Entry Widgets
+    # Layout and Entry Widgets
     # --------------------------------------------------------
 
     def build_interface(self):
@@ -79,7 +87,7 @@ class BudgetApp:
         input_frame.columnconfigure(1, weight=1)  # Makes entry column stretch with window
 
     def build_action_section(self):
-        # Creates the Add Expense button and links it to logic and integrator callback
+        # Creates the Add Expense button and links it to the callback function
         action_frame = tk.Frame(self.main_frame, pady=12)
         action_frame.pack(fill="x")
         self.add_button = tk.Button(action_frame, text="Add Expense",
@@ -100,7 +108,7 @@ class BudgetApp:
         self.total_label.pack(anchor="e")  # Aligns total to the right
 
     # --------------------------------------------------------
-    #  Logic Integrator & Event Handler
+    # Logic Integrator and Event Handler
     # --------------------------------------------------------
 
     def bind_events(self):
@@ -112,7 +120,7 @@ class BudgetApp:
         self.handle_add_expense()
 
     def handle_add_expense(self):
-        # STEP 1: Read what the user typed into Entry widgets
+        # STEP 1: Read what the user typed into the Entry widgets
         name, amount_text, category = self.get_form_data()
 
         # STEP 2: Check the input is valid before doing anything
@@ -121,19 +129,19 @@ class BudgetApp:
             messagebox.showwarning("Input Error", validation_error)
             return  # Stop here if there is a problem
 
-        # STEP 3: Pass the data into Lucy's BudgetManager
+        # STEP 3: Pass the data into the BudgetManager
         try:
             self.manager.add_expense(name, amount_text, category)
         except ValueError:
             messagebox.showerror("Error", "Amount must be a number.")
             return
 
-        # STEP 4: Clear the form and let update the display
+        # STEP 4: Clear the form and update the display
         self.clear_form()
         self.refresh_view()
 
     def get_form_data(self):
-        # Reads the current text from three Entry widgets
+        # Reads the current text from the three Entry widgets
         # .strip() removes any accidental spaces the user may have typed
         name        = self.name_entry.get().strip()
         amount_text = self.amount_entry.get().strip()
@@ -148,7 +156,7 @@ class BudgetApp:
         return ""
 
     def clear_form(self):
-        # Wipes Entry fields clean after a successful add
+        # Wipes the Entry fields clean after a successful add
         # Then moves the cursor back to the name field for the next entry
         self.name_entry.delete(0, tk.END)
         self.amount_entry.delete(0, tk.END)
@@ -156,14 +164,14 @@ class BudgetApp:
         self.name_entry.focus_set()
 
     # --------------------------------------------------------
-    #   Output Display
+    # Output Display
     # --------------------------------------------------------
 
     def refresh_view(self):
         # Clears the text box and refills it with the latest expense data
         self.text_display.delete("1.0", tk.END)
 
-        expense_report = self.manager.get_all_expenses()  # Gets updated list from Lucy's manager
+        expense_report = self.manager.get_all_expenses()  # Gets updated list from the manager
         if expense_report:
             self.text_display.insert(tk.END, expense_report)
         else:
@@ -174,7 +182,7 @@ class BudgetApp:
 
 
 # ============================================================
-# ENTRY POINT - Starts the app
+# Entry Point - Starts the app
 # ============================================================
 
 if __name__ == "__main__":
